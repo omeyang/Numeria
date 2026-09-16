@@ -1,0 +1,75 @@
+.TH GIT-NUMERIA 1 "2026-07" "Numeria" "Git Manual"
+.SH NAME
+git-numeria \- 按维度统计 git 变更(代码/测试/其他非代码/文件)
+.SH SYNOPSIS
+.B git numeria
+[\fI<选项>\fR] [\fI<范围>\fR]
+.SH DESCRIPTION
+按四个维度统计两个分支或若干提交之间的变更,各输出 新增·删除·修改,
+为 0 的格留空。只保证 Go 与 Python 两种语言的识别。
+.PP
+总增删与
+.B git diff --numstat
+严格一致;"修改" = 同一 hunk 内成对的删除/新增(min 配对,基于
+.BR "git diff -U0 -M" ),
+余量计为纯新增/纯删除。
+.SH 范围
+.TP
+.B git numeria main feature
+两分支比较,等价 \fBmain...feature\fR(merge-base 三点语法,统计 feature
+自分叉点以来的变更)。
+.TP
+.B git numeria HEAD~5
+最近 5 个提交,等价 \fBHEAD~5..HEAD\fR。
+.TP
+.B git numeria v1.0..v2.0
+显式范围原样透传(两点/三点均可)。
+.TP
+.B git numeria
+无参数:工作区未提交改动 vs HEAD。
+.SH OPTIONS
+.TP
+.BI \-n " N"
+统计最近 N 个提交(HEAD~N..HEAD),与位置参数互斥。
+.TP
+.BI \-C " path"
+git 仓库路径(默认当前目录)。
+.TP
+.B \-v
+附加变更最大文件 Top 10 明细。
+.TP
+.BI \-\-html " file"
+额外输出自包含 HTML 报告(单文件、无外部资源、浅/深双主题)。
+.TP
+.BI \-\-color " mode"
+\fBauto\fR(默认,仅终端着色) | \fBalways\fR | \fBnever\fR。
+.TP
+.B \-V, \-\-version
+显示版本号。
+.TP
+.B \-h, \-\-help
+显示帮助。
+.PP
+flag 可写在范围之后;\fB\-flag\fR、\fB\-\-flag\fR、\fB\-flag=value\fR 均可。
+.SH 维度
+.TP
+.B 代码
+*.go / *.py(排除测试与生成代码)。
+.TP
+.B 测试代码
+*_test.go;test_*.py、*_test.py、conftest.py、test(s)/ 目录下的 .py。
+.TP
+.B 其他非代码
+其余全部,含 vendor/、node_modules/ 与 *.pb.go、*_pb2*.py 等生成代码。
+.TP
+.B 文件
+新增(A)/删除(D)/修改(M·R·T) 的文件个数。
+.SH EXAMPLES
+.nf
+git numeria origin/master feature/xxx \-v
+git numeria \-n 40 \-\-html weekly.html
+git numeria v1.0.0 v1.1.0 \-\-color never
+.fi
+.SH SEE ALSO
+.BR git-diff (1),
+项目文档 https://github.com/omeyang/Numeria/wiki

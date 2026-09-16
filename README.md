@@ -31,19 +31,35 @@ tokei 式语言分类布局:每语言一组,测试代码以 `|-` 子行挂在所
 
 ## 安装
 
-一键安装(Linux x86_64/arm64、macOS Intel/Apple Silicon):
+零依赖单二进制,文件名 `git-numeria`。git 会把 PATH 里的 `git-<名字>` 自动识别为 `git <名字>` 子命令,所以放进 PATH 即是 `git numeria`,无需任何配置(`git-` 前缀就是这套机制本身,请勿重命名)。运行时只需要系统里有 `git`。
+
+**一键安装**(Linux x86_64/arm64、macOS Intel/Apple Silicon;root 装到 `/usr/local/bin`,普通用户装到 `~/.local/bin`,连同 man 页):
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/omeyang/Numeria/main/install.sh | sh
 ```
 
-或从 [Releases](https://github.com/omeyang/Numeria/releases) 下载二进制放入 PATH(Windows 用 zip),或:
+固定版本或自定义目录:`NUMERIA_VERSION=v0.0.1 NUMERIA_INSTALL_DIR=/opt/bin curl ... | sh`。
+
+**手动安装**:从 [Releases](https://github.com/omeyang/Numeria/releases) 下载 `git-numeria-<tag>-<target>` 压缩包(Windows 用 zip),解压后把 `git-numeria` 放入 PATH,`git-numeria.1` 放入 `man1` 目录。以 Linux x86_64 为例:
+
+```sh
+V=v0.0.1; T=x86_64-unknown-linux-gnu
+curl -fsSL -o /tmp/numeria.tar.gz "https://github.com/omeyang/Numeria/releases/download/$V/git-numeria-$V-$T.tar.gz"
+tar xzf /tmp/numeria.tar.gz -C /tmp
+install -m 755 "/tmp/git-numeria-$V-$T/git-numeria" /usr/local/bin/
+install -Dm 644 "/tmp/git-numeria-$V-$T/git-numeria.1" /usr/local/share/man/man1/git-numeria.1
+```
+
+离线机器把压缩包拷过去按同样步骤安装即可。
+
+**源码编译**(需要 Rust 工具链;Linux 产物要求 glibc ≥ 2.39,Rocky/RHEL 9、Ubuntu 22.04 等老发行版请用此方式):
 
 ```sh
 cargo install --git https://github.com/omeyang/Numeria
 ```
 
-装好即是 git 插件:git 会把 PATH 里的 `git-numeria` 自动识别为 `git numeria` 子命令,无需任何配置。
+**验证**:`git numeria --version`,`git help numeria`。Rocky Linux 10.2 完整示例、升级卸载与常见问题见 Wiki [安装](https://github.com/omeyang/Numeria/wiki/安装)。
 
 ## 用法
 
@@ -84,7 +100,7 @@ git 原生 diff 只有新增/删除两种行。本工具用 `git diff -U0 -M` �
 ```sh
 cargo test                        # 单元测试 + 端到端测试(构造真实 git 仓库比对)
 cargo clippy --all-targets -- -D warnings
-cargo build --release             # ~450KB 静态二进制
+cargo build --release             # ~450KB 单二进制(strip + LTO)
 ```
 
 ## License
